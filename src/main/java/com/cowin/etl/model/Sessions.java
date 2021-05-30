@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
-import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.List;
@@ -24,19 +22,19 @@ public class Sessions implements Serializable {
     private String state_name;
     private String district_name;
     private String block_name;
-    private String pincode;
+    private int pincode;
     private String from;
     private String to;
     private String lat;
-//    private String log;
+    private String Long;
     private String fee_type;
     private String session_id;
     private String date;
-    private String available_capacity_dose1;
-    private String available_capacity_dose2;
-    private String available_capacity;
-    private String fee;
-    private String min_age_limit;
+    private int available_capacity_dose1;
+    private int available_capacity_dose2;
+    private int available_capacity;
+    private float fee;
+    private int min_age_limit;
     private String vaccine;
     private List<String> slots;
 
