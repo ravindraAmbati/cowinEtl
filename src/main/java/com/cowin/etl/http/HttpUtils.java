@@ -34,8 +34,21 @@ public class HttpUtils {
     public static HttpHeaders getHttpHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(AppConstants.ACCEPT_LANGUAGE, AppConstants.EN_US);
-        headers.add(AppConstants.USER_AGENT, AppConstants.USER_AGENT_VALUE);
+        headers.set(AppConstants.USER_AGENT, AppConstants.USER_AGENT_VALUE);
+        return headers;
+    }
+
+    public static HttpHeaders getHttpHeaders_validateOtp() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(AppConstants.USER_AGENT, AppConstants.USER_AGENT_VALUE_2);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("origin", "https://selfregistration.cowin.gov.in");
+        headers.set("sec-fetch-site", "cross-site");
+        headers.set("sec-fetch-mode", "cors");
+        headers.set("sec-fetch-dest", "empty");
+        headers.set("referer", "https://selfregistration.cowin.gov.in/");
         return headers;
     }
 

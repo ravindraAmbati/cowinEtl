@@ -16,6 +16,8 @@ public class AppConstants {
     public static final String EN_US = "en_US";
     public static final String USER_AGENT = "user-agent";
     public static final String USER_AGENT_VALUE = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36";
+    public static final String USER_AGENT_VALUE_2 = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36";
+
 
     public static final String EMPTY = "";
     public static final String PAID = "Paid";

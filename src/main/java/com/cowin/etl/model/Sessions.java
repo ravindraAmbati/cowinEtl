@@ -25,8 +25,8 @@ public class Sessions implements Serializable {
     private int pincode;
     private String from;
     private String to;
-    private String lat;
-    private String Long;
+    private float lat;
+    private float Long;
     private String fee_type;
     private String session_id;
     private String date;

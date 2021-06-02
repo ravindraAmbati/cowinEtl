@@ -63,9 +63,9 @@ public class JsonConverter {
     }
 
 
-    public static String toJson(List<Sessions> sessionsList) {
-        if (!ObjectUtils.isEmpty(sessionsList)) {
-            return gson.toJson(sessionsList);
+    public static String toJson(Object obj) {
+        if (!ObjectUtils.isEmpty(obj)) {
+            return gson.toJson(obj);
         }
         return null;
     }
