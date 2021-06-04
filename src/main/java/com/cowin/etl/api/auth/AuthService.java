@@ -1,10 +1,13 @@
 package com.cowin.etl.api.auth;
 
+import com.cowin.etl.cache.AppCacheManager;
+import com.cowin.etl.constants.AppConstants;
 import com.cowin.etl.http.HttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -23,36 +26,24 @@ public class AuthService {
     @Autowired
     private HttpUtils httpUtils;
 
-    public String generateOtp(long mobileNumber) {
+    @Autowired
+    private AppCacheManager appCacheManager;
+
+    public String generateOtpAndGetTxnId(String mobileNumber) {
+        log.info("generateOtpAndGetTxnId -> mobileNumber: {}", mobileNumber);
         HashMap<String, Object> httpBodyMap = new HashMap<>();
         httpBodyMap.put("secret", "U2FsdGVkX1/cvm7luOFiHj/BrclRD58T/z2l+L3zar50UAlxSY3qLDxmO8fNaFnxCtQC39Qo9mTua2Og0qoKwQ==");
         httpBodyMap.put("mobile", mobileNumber);
         JSONObject jsonObject = new JSONObject(httpBodyMap);
         HttpEntity<String> httpEntity = new HttpEntity<>(jsonObject.toString(), HttpUtils.getHttpHeaders());
+        log.info("validateOtpAndGetToken -> HttpHeaders: {}", httpEntity.getHeaders());
+        log.info("validateOtpAndGetToken -> HttpBody: {}", httpEntity.getBody());
+        log.info("validateOtpAndGetToken -> url: {}", GENERATE_OTP_URL);
         String responseJson = httpUtils.getRestTemplate().postForObject(GENERATE_OTP_URL, httpEntity, String.class);
         JSONObject responseJsonObject = new JSONObject(responseJson);
         String txnId = responseJsonObject.get("txnId").toString();
-        log.info("mobile: {} and txnId: {}", mobileNumber, txnId);
+        log.info("validateOtpAndGetToken -> mobile: {} and txnId: {}", mobileNumber, txnId);
         return txnId;
-    }
-
-    public String confirmOtp(String txnId, String otp) {
-
-        String encodeOtp = encodeHex(getSha256(otp));
-        if (!ObjectUtils.isEmpty(encodeOtp)) {
-            HashMap<String, Object> httpBodyMap = new HashMap<>();
-            httpBodyMap.put("otp", encodeOtp);
-            httpBodyMap.put("txnId", txnId);
-            JSONObject jsonObject = new JSONObject(httpBodyMap);
-            HttpEntity<String> httpEntity = new HttpEntity<>(jsonObject.toString(), HttpUtils.getHttpHeaders_validateOtp());
-            String responseJson = httpUtils.getRestTemplate().postForObject(VALIDATE_OTP_URL, httpEntity, String.class);
-            JSONObject responseJsonObject = new JSONObject(responseJson);
-            String token = responseJsonObject.get("token").toString();
-            boolean isNewAccount = "Y".equalsIgnoreCase(responseJsonObject.get("isNewAccount").toString());
-            log.info("isNewAccount: {} and token: {}", isNewAccount, token);
-            return token;
-        }
-        return null;
     }
 
     private String encodeHex(byte[] digest) {
@@ -72,6 +63,54 @@ public class AuthService {
             return messageDigest.digest(otp.getBytes(StandardCharsets.UTF_8));
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String validateOtpAndGetToken(String txnId) {
+
+        String otp = AppCacheManager.txnIdOtpMap.get(txnId);
+        String encodeOtp = AppCacheManager.otpSHA256OtpMap.get(otp);
+        if (ObjectUtils.isEmpty(encodeOtp)) {
+            encodeOtp = encodeHex(getSha256(otp));
+            AppCacheManager.updateSHA256Otp(otp, encodeOtp);
+        }
+        log.info("validateOtpAndGetToken -> txnId: {} and otp: {}", txnId, otp);
+        if (!ObjectUtils.isEmpty(encodeOtp)) {
+            HashMap<String, Object> httpBodyMap = new HashMap<>();
+            httpBodyMap.put("otp", encodeOtp);
+            httpBodyMap.put("txnId", txnId);
+            JSONObject jsonObject = new JSONObject(httpBodyMap);
+            HttpEntity<String> httpEntity = new HttpEntity<>(jsonObject.toString(), HttpUtils.getHttpHeaders_validateOtp());
+            log.info("validateOtpAndGetToken -> HttpHeaders: {}", httpEntity.getHeaders());
+            log.info("validateOtpAndGetToken -> HttpBody: {}", httpEntity.getBody());
+            log.info("validateOtpAndGetToken -> url: {}", VALIDATE_OTP_URL);
+            String responseJson = null;
+            try {
+                responseJson = httpUtils.getRestTemplate().postForObject(VALIDATE_OTP_URL, httpEntity, String.class);
+            } catch (Exception e) {
+                log.error("validateOtpAndGetToken -> FAILED due to: {}", e.getMessage());
+                try {
+                    httpEntity = new HttpEntity<>(jsonObject.toString(), HttpUtils.getHttpHeaders_validateOtp2());
+                    log.info("validateOtpAndGetToken -> HttpHeaders: {}", httpEntity.getHeaders());
+                    responseJson = httpUtils.getRestTemplate().postForObject(VALIDATE_OTP_URL, httpEntity, String.class);
+                } catch (Exception e1) {
+                    log.error("validateOtpAndGetToken -> FAILED due to: {}", e1.getMessage());
+                    try {
+                        httpEntity = new HttpEntity<>(jsonObject.toString(), HttpUtils.getHttpHeaders_validateOtp3());
+                        log.info("validateOtpAndGetToken -> HttpHeaders: {}", httpEntity.getHeaders());
+                        responseJson = httpUtils.getRestTemplate().postForObject(VALIDATE_OTP_URL, httpEntity, String.class);
+                    } catch (Exception e2) {
+                        log.error("validateOtpAndGetToken -> FAILED due to: {}", e2.getMessage());
+                    }
+                }
+
+            }
+            JSONObject responseJsonObject = new JSONObject(responseJson);
+            String token = responseJsonObject.get("token").toString();
+            boolean isNewAccount = "Y".equalsIgnoreCase(responseJsonObject.get("isNewAccount").toString());
+            log.info("validateOtpAndGetToken -> isNewAccount: {} and token: {}", isNewAccount, token);
+            return token;
         }
         return null;
     }

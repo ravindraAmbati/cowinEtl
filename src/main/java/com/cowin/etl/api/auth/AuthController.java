@@ -1,12 +1,9 @@
 package com.cowin.etl.api.auth;
 
+import com.cowin.etl.cache.AppCacheManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 @RestController(value = "authController")
 @RequestMapping("/auth")
@@ -16,14 +13,24 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @GetMapping("/{mobileNumber}")
-    public @ResponseBody String generateOtp(@PathVariable long mobileNumber){
-        return authService.generateOtp(mobileNumber);
+    @Autowired
+    private AppCacheManager appCacheManager;
+
+
+    @GetMapping("/mobile/{mobileNumber}")
+    public @ResponseBody
+    String generateOtp(@PathVariable String mobileNumber) {
+        String txnId = authService.generateOtpAndGetTxnId(mobileNumber);
+        return AppCacheManager.updateTxnId(mobileNumber, txnId).get(mobileNumber);
     }
 
-    @GetMapping("/{txnId}/{otp}")
-    public @ResponseBody String confirmOtp(@PathVariable String txnId, @PathVariable String otp){
-        return authService.confirmOtp(txnId,otp);
+    @GetMapping("/book/{mobileNumber}/{otp}")
+    public @ResponseBody
+    String validateOtp(@PathVariable String mobileNumber, @PathVariable String otp) {
+        String txnId = AppCacheManager.mobileTxnIdMap.get(mobileNumber);
+        AppCacheManager.updateOtp(txnId,otp);
+        String token = authService.validateOtpAndGetToken(txnId);
+        return AppCacheManager.updateToken(txnId, token).get(txnId);
     }
 
 

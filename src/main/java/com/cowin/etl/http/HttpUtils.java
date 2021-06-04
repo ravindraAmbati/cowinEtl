@@ -13,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
 
-import static com.cowin.etl.constants.AppConstants.FAILED;
+import static com.cowin.etl.constants.AppConstants.*;
 import static com.cowin.etl.constants.Functions.httpStatusOkPredicate;
 
 @Component
@@ -36,19 +36,52 @@ public class HttpUtils {
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(AppConstants.ACCEPT_LANGUAGE, AppConstants.EN_US);
-        headers.set(AppConstants.USER_AGENT, AppConstants.USER_AGENT_VALUE);
+        headers.set(AppConstants.USER_AGENT, USER_AGENT_VALUE);
         return headers;
     }
 
     public static HttpHeaders getHttpHeaders_validateOtp() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set(AppConstants.USER_AGENT, AppConstants.USER_AGENT_VALUE_2);
+        headers.add("User-Agent", USER_AGENT_VALUE);
+        headers.add("Accept", "application/json");
+        headers.add("Accept-Language", "en-US");
+        headers.add("referer", "https://selfregistration.cowin.gov.in/");
+        headers.add("origin", "https://selfregistration.cowin.gov.in");
+        headers.add("sec-fetch-dest", "empty");
+        headers.add("sec-fetch-mode", "cors");
+        headers.add("sec-fetch-site", "cross-site");
+        headers.add("sec-gpc", "1");
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("origin", "https://selfregistration.cowin.gov.in");
-        headers.set("sec-fetch-site", "cross-site");
-        headers.set("sec-fetch-mode", "cors");
-        headers.set("sec-fetch-dest", "empty");
-        headers.set("referer", "https://selfregistration.cowin.gov.in/");
+        return headers;
+    }
+
+    public static HttpHeaders getHttpHeaders_validateOtp2() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("User-Agent", USER_AGENT_VALUE_2);
+        headers.add("Accept", "application/json");
+        headers.add("Accept-Language", "en-US");
+        headers.add("referer", "https://selfregistration.cowin.gov.in/");
+        headers.add("origin", "https://selfregistration.cowin.gov.in");
+        headers.add("sec-fetch-dest", "empty");
+        headers.add("sec-fetch-mode", "cors");
+        headers.add("sec-fetch-site", "cross-site");
+        headers.add("sec-gpc", "1");
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return headers;
+    }
+
+    public static HttpHeaders getHttpHeaders_validateOtp3() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("User-Agent", USER_AGENT_VALUE_3);
+        headers.add("Accept", "application/json");
+        headers.add("Accept-Language", "en-US");
+        headers.add("referer", "https://selfregistration.cowin.gov.in/");
+        headers.add("origin", "https://selfregistration.cowin.gov.in");
+        headers.add("sec-fetch-dest", "empty");
+        headers.add("sec-fetch-mode", "cors");
+        headers.add("sec-fetch-site", "cross-site");
+        headers.add("sec-gpc", "1");
+        headers.setContentType(MediaType.APPLICATION_JSON);
         return headers;
     }
 
