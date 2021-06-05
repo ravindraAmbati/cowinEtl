@@ -1,7 +1,7 @@
 package com.cowin.etl.utils;
 
+import com.cowin.etl.model.Center;
 import com.cowin.etl.model.District;
-import com.cowin.etl.model.Sessions;
 import com.cowin.etl.model.State;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -28,14 +28,14 @@ public class JsonConverter {
         return new StringJoiner(",", "{", "}");
     }
 
-    public static List<Sessions> convertToSessions(String json) {
+    public static List<Center> convertToCenters(String json) {
         log.info("convert to sessions -> json: {}", json);
         jsonObject = new JSONObject(json);
-        JSONArray jsonArray = jsonObject.getJSONArray("sessions");
+        JSONArray jsonArray = jsonObject.getJSONArray("centers");
         log.info("convert to sessions -> jsonArray: {}", jsonArray);
-        Sessions[] sessions = gson.fromJson(jsonArray.toString(), Sessions[].class);
-        log.info("convert to sessions -> sessions: {}", Arrays.toString(sessions));
-        return Arrays.stream(sessions)
+        Center[] centers = gson.fromJson(jsonArray.toString(), Center[].class);
+        log.info("convert to sessions -> sessions: {}", Arrays.toString(centers));
+        return Arrays.stream(centers)
                 .filter(anyDosePredicate)
                 .filter(paidPredicate)
                 .filter(_18Predicate)

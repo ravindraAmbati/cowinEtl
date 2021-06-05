@@ -1,132 +1,80 @@
 package com.cowin.etl.utils;
 
 import com.cowin.etl.constants.Functions;
-import com.cowin.etl.model.Sessions;
+import com.cowin.etl.enums.VaccineEnum;
+import com.cowin.etl.model.Center;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.cowin.etl.utils.JsonConverter.convertToSessions;
+import java.util.HashMap;
+import java.util.function.Predicate;
 
 @Component
 @Slf4j
 public class Filters {
 
-    public static List<Sessions> defaultFilter(List<Sessions> sessionsList){
-        log.info("defaultFilter -> Paid | Not Covaxin | 1 Dose | 18+");
-        return sessionsList
-                .stream()
-                .filter(Functions.paidPredicate)
-                .filter(Functions.covaxinPredicate.negate())
-                .filter(Functions._1DosePredicate)
-                .filter(Functions._18Predicate)
-                .collect(Collectors.toList());
-    }
+    public static HashMap<Integer, String> filterName = new HashMap<>();
+    public static HashMap<Integer, Predicate<Center>> filters = new HashMap<>();
 
-    public static List<Sessions> _18(List<Sessions> sessionsList){
-        log.info("defaultFilter -> 18+");
-        return sessionsList
-                .stream()
-                .filter(Functions.anyDosePredicate)
-                .filter(Functions._18Predicate)
-                .collect(Collectors.toList());
-    }
+    static {
 
-    public static List<Sessions> _45(List<Sessions> sessionsList){
-        log.info("defaultFilter -> 45+");
-        return sessionsList
-                .stream()
-                .filter(Functions.anyDosePredicate)
-                .filter(Functions._45Predicate)
-                .collect(Collectors.toList());
-    }
+        filterName.put(0, "Dose: any(first or second)");
+        filterName.put(1, "Dose: 1");
+        filterName.put(2, "Dose: 2");
+        filterName.put(3, "Fee: Paid");
+        filterName.put(4, "Fee: Free");
+        filterName.put(5, "Vaccine: " + VaccineEnum.COVAXIN.getName());
+        filterName.put(6, "Vaccine: " + VaccineEnum.COVISHIELD.getName());
+        filterName.put(7, "Vaccine: " + VaccineEnum.Sputnik_V.getName());
+        filterName.put(8, "Age: 18+");
+        filterName.put(9, "Age: 45+");
 
-    public static List<Sessions> _18_1Dose_covaxin_paid(List<Sessions> sessionsList){
-        log.info("defaultFilter -> Paid | Covaxin | 1 Dose | 18+");
-        return sessionsList
-                .stream()
-                .filter(Functions.paidPredicate)
-                .filter(Functions.covaxinPredicate)
-                .filter(Functions._1DosePredicate)
-                .filter(Functions._18Predicate)
-                .collect(Collectors.toList());
-    }
+        filters.put(0, Functions.anyDosePredicate);
+        filters.put(1, Functions._1DosePredicate);
+        filters.put(2, Functions._2DosePredicate);
+        filters.put(3, Functions.paidPredicate);
+        filters.put(4, Functions.freePredicate);
+        filters.put(5, Functions.covaxinPredicate);
+        filters.put(6, Functions.covishieldPredicate);
+        filters.put(7, Functions.sputnikVPredicate);
+        filters.put(8, Functions._18Predicate);
+        filters.put(9, Functions._45Predicate);
 
-    public static List<Sessions> _18_1Dose_covishield_paid(List<Sessions> sessionsList){
-        log.info("defaultFilter -> Paid | Covishield | 1 Dose | 18+");
-        return sessionsList
-                .stream()
-                .filter(Functions.paidPredicate)
-                .filter(Functions.covishieldPredicate)
-                .filter(Functions._1DosePredicate)
-                .filter(Functions._18Predicate)
-                .collect(Collectors.toList());
-    }
+        filters.put(1358, Functions._1DosePredicate.and(Functions.paidPredicate).and(Functions.covaxinPredicate).and(Functions._18Predicate));
+        filters.put(2358, Functions._2DosePredicate.and(Functions.paidPredicate).and(Functions.covaxinPredicate).and(Functions._18Predicate));
 
-    public static List<Sessions> _18_1Dose_Paid(List<Sessions> sessionsList){
-        log.info("defaultFilter -> Paid | 1 Dose | 18+");
-        return sessionsList
-                .stream()
-                .filter(Functions.paidPredicate)
-                .filter(Functions._1DosePredicate)
-                .filter(Functions._18Predicate)
-                .collect(Collectors.toList());
-    }
+        filters.put(1458, Functions._1DosePredicate.and(Functions.freePredicate).and(Functions.covaxinPredicate).and(Functions._18Predicate));
+        filters.put(2458, Functions._2DosePredicate.and(Functions.freePredicate).and(Functions.covaxinPredicate).and(Functions._18Predicate));
 
-    public static List<Sessions> _18_2Dose_Covishield_Paid(List<Sessions> sessionsList){
-        log.info("defaultFilter -> Paid | Not Covaxin | 1 Dose | 18+");
-        return sessionsList
-                .stream()
-                .filter(Functions.paidPredicate)
-                .filter(Functions.covishieldPredicate)
-                .filter(Functions._2DosePredicate)
-                .filter(Functions._18Predicate)
-                .collect(Collectors.toList());
-    }
+        filters.put(1368, Functions._1DosePredicate.and(Functions.paidPredicate).and(Functions.covishieldPredicate).and(Functions._18Predicate));
+        filters.put(2368, Functions._2DosePredicate.and(Functions.paidPredicate).and(Functions.covishieldPredicate).and(Functions._18Predicate));
 
-    public static List<Sessions> _18_2Dose_Covaxin_Paid(List<Sessions> sessionsList){
-        log.info("defaultFilter -> Paid | Not Covaxin | 1 Dose | 18+");
-        return sessionsList
-                .stream()
-                .filter(Functions.paidPredicate)
-                .filter(Functions.covaxinPredicate)
-                .filter(Functions._2DosePredicate)
-                .filter(Functions._18Predicate)
-                .collect(Collectors.toList());
-    }
+        filters.put(1468, Functions._1DosePredicate.and(Functions.freePredicate).and(Functions.covishieldPredicate).and(Functions._18Predicate));
+        filters.put(2468, Functions._2DosePredicate.and(Functions.freePredicate).and(Functions.covishieldPredicate).and(Functions._18Predicate));
 
-    public static List<Sessions> _45_1Dose_Paid(List<Sessions> sessionsList){
-        log.info("defaultFilter -> Paid | Not Covaxin | 1 Dose | 18+");
-        return sessionsList
-                .stream()
-                .filter(Functions.paidPredicate)
-                .filter(Functions._1DosePredicate)
-                .filter(Functions._45Predicate)
-                .collect(Collectors.toList());
-    }
+        filters.put(1378, Functions._1DosePredicate.and(Functions.paidPredicate).and(Functions.sputnikVPredicate).and(Functions._18Predicate));
+        filters.put(2378, Functions._2DosePredicate.and(Functions.paidPredicate).and(Functions.sputnikVPredicate).and(Functions._18Predicate));
 
-    public static List<Sessions> _45_2Dose_Covishield_Paid(List<Sessions> sessionsList){
-        log.info("defaultFilter -> Paid | Not Covaxin | 1 Dose | 18+");
-        return sessionsList
-                .stream()
-                .filter(Functions.paidPredicate)
-                .filter(Functions.covishieldPredicate)
-                .filter(Functions._2DosePredicate)
-                .filter(Functions._45Predicate)
-                .collect(Collectors.toList());
-    }
+        filters.put(1478, Functions._1DosePredicate.and(Functions.freePredicate).and(Functions.sputnikVPredicate).and(Functions._45Predicate));
+        filters.put(2478, Functions._2DosePredicate.and(Functions.freePredicate).and(Functions.sputnikVPredicate).and(Functions._45Predicate));
 
-    public static List<Sessions> _45_2Dose_Covaxin_Paid(List<Sessions> sessionsList){
-        log.info("defaultFilter -> Paid | Not Covaxin | 1 Dose | 18+");
-        return sessionsList
-                .stream()
-                .filter(Functions.paidPredicate)
-                .filter(Functions.covaxinPredicate)
-                .filter(Functions._2DosePredicate)
-                .filter(Functions._45Predicate)
-                .collect(Collectors.toList());
+        filters.put(1359, Functions._1DosePredicate.and(Functions.paidPredicate).and(Functions.covaxinPredicate).and(Functions._45Predicate));
+        filters.put(2359, Functions._2DosePredicate.and(Functions.paidPredicate).and(Functions.covaxinPredicate).and(Functions._45Predicate));
+
+        filters.put(1459, Functions._1DosePredicate.and(Functions.freePredicate).and(Functions.covaxinPredicate).and(Functions._45Predicate));
+        filters.put(2459, Functions._2DosePredicate.and(Functions.freePredicate).and(Functions.covaxinPredicate).and(Functions._45Predicate));
+
+        filters.put(1369, Functions._1DosePredicate.and(Functions.paidPredicate).and(Functions.covishieldPredicate).and(Functions._45Predicate));
+        filters.put(2369, Functions._2DosePredicate.and(Functions.paidPredicate).and(Functions.covishieldPredicate).and(Functions._45Predicate));
+
+        filters.put(1469, Functions._1DosePredicate.and(Functions.freePredicate).and(Functions.covishieldPredicate).and(Functions._45Predicate));
+        filters.put(2469, Functions._2DosePredicate.and(Functions.freePredicate).and(Functions.covishieldPredicate).and(Functions._45Predicate));
+
+        filters.put(1379, Functions._1DosePredicate.and(Functions.paidPredicate).and(Functions.sputnikVPredicate).and(Functions._45Predicate));
+        filters.put(2379, Functions._2DosePredicate.and(Functions.paidPredicate).and(Functions.sputnikVPredicate).and(Functions._45Predicate));
+
+        filters.put(1479, Functions._1DosePredicate.and(Functions.freePredicate).and(Functions.sputnikVPredicate).and(Functions._45Predicate));
+        filters.put(2479, Functions._2DosePredicate.and(Functions.freePredicate).and(Functions.sputnikVPredicate).and(Functions._45Predicate));
+
     }
 }

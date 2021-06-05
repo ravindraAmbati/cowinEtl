@@ -2,13 +2,17 @@ package com.cowin.etl.api.avail;
 
 import com.cowin.etl.enums.DistrictEnum;
 import com.cowin.etl.enums.StateEnum;
+import com.cowin.etl.model.Center;
+import com.cowin.etl.utils.Filters;
+import com.cowin.etl.utils.JsonConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.StringJoiner;
+import java.util.List;
+import java.util.function.Predicate;
 
 @RestController(value = "availController")
 @RequestMapping("/avail")
@@ -18,116 +22,227 @@ public class AvailController {
     @Autowired
     private AvailService availService;
 
-
-    @GetMapping("/test")
-    public String test() {
-        log.info("test");
-        return "test";
+    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    String searchAvailability() {
+        log.info("searchAvailability");
+        return JsonConverter.toJson(availService.searchAvail(Filters.filters.get(0)));
     }
 
-    @GetMapping(value = "/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String findByDate(@PathVariable String date) {
-        log.info("find by date -> date: {}", date);
-        return availService.findByDateJson(date);
+    String searchAvailability(@PathVariable int filter) {
+        log.info("searchAvailability -> filter: {}", filter);
+        Predicate<Center> predicate = Filters.filters.get(filter);
+        if (ObjectUtils.isEmpty(filter) || ObjectUtils.isEmpty(predicate)) {
+            predicate = Filters.filters.get(0);
+        }
+        return JsonConverter.toJson(availService.searchAvail(predicate));
     }
 
-    @GetMapping(value = "filter/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/state/{state_id}/", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String findByDateAndFilter(@PathVariable String date) {
-        log.info("find by date -> date: {}", date);
-        return availService.findByDateAndFilterJson(date);
+    String searchAvailabilityByState(@PathVariable int state_id) {
+        log.info("find by state-> state id: {}", state_id);
+        return JsonConverter.toJson(availService.searchAvailByState(state_id, Filters.filters.get(0)));
     }
 
-    @GetMapping(value = "/state/{state_id}/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/state/{state_id}/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String findByState(@PathVariable String state_id, @PathVariable String date) {
-        log.info("find by state-> state id: {} and date: {}", state_id, date);
-        return availService.findByStateJson(Integer.parseInt(state_id), date);
+    String searchAvailabilityByState(@PathVariable int state_id, @PathVariable int filter) {
+        log.info("searchAvailabilityByState -> state id: {} and filter: {}", state_id, filter);
+        Predicate<Center> predicate = Filters.filters.get(filter);
+        if (ObjectUtils.isEmpty(filter) || ObjectUtils.isEmpty(predicate)) {
+            predicate = Filters.filters.get(0);
+        }
+        return JsonConverter.toJson(availService.searchAvailByState(state_id, predicate));
     }
 
-    @GetMapping(value = "/ts/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/ts", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String findInTs(@PathVariable String date) {
-        log.info("find in TS -> date: {}", date);
-        return availService.findByStateJson(StateEnum.TS.getId(), date);
+    String searchAvailabilityInTs() {
+        log.info("searchAvailabilityInTs -> ");
+        return JsonConverter.toJson(availService.searchAvailByState(StateEnum.TS.getId(), Filters.filters.get(0)));
     }
 
-    @GetMapping(value = "/ap/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/ts/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String findInAp(@PathVariable String date) {
-        log.info("find in AP -> date: {}", date);
-        return availService.findByStateJson(StateEnum.AP.getId(), date);
+    String searchAvailabilityInTs(@PathVariable int filter) {
+        log.info("searchAvailabilityInTs -> filter: {}", filter);
+        Predicate<Center> predicate = Filters.filters.get(filter);
+        if (ObjectUtils.isEmpty(filter) || ObjectUtils.isEmpty(predicate)) {
+            predicate = Filters.filters.get(0);
+        }
+        return JsonConverter.toJson(availService.searchAvailByState(StateEnum.TS.getId(), predicate));
     }
 
-    @GetMapping(value = "/district/{district_id}/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/ap", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String findByDistrict(@PathVariable String district_id, @PathVariable String date) {
-        log.info("find by district -> district_id: {} and date: {}", district_id, date);
-        return availService.findByDistrictJson(Integer.parseInt(district_id), date);
+    String searchAvailabilityInAp() {
+        log.info("searchAvailabilityInAp -> ");
+        return JsonConverter.toJson(availService.searchAvailByState(StateEnum.AP.getId(), Filters.filters.get(0)));
     }
 
-    @GetMapping(value = "/hyd/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/ap/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String findInHyd(@PathVariable String date) {
-        log.info("find In Hyd -> date: {}", date);
-        return availService.findByDistrictJson(DistrictEnum.HYD.getId(), date);
+    String searchAvailabilityInAp(@PathVariable int filter) {
+        log.info("searchAvailabilityInTs -> filter: {}", filter);
+        Predicate<Center> predicate = Filters.filters.get(filter);
+        if (ObjectUtils.isEmpty(filter) || ObjectUtils.isEmpty(predicate)) {
+            predicate = Filters.filters.get(0);
+        }
+        return JsonConverter.toJson(availService.searchAvailByState(StateEnum.AP.getId(), predicate));
     }
 
-    @GetMapping(value = "/rnr/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/district/{district_id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String findInRnr(@PathVariable String date) {
-        log.info("find In Rnr -> date: {}", date);
-        return availService.findByDistrictJson(DistrictEnum.RND.getId(), date);
+    String searchAvailabilityByDistrict(@PathVariable int district_id) {
+        log.info("searchAvailabilityByDistrict -> district_id: {}", district_id);
+        return JsonConverter.toJson(availService.searchAvailByDistrict(district_id, Filters.filters.get(0)));
     }
 
-    @GetMapping(value = "/sgr/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/hyd", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String findBySgr(@PathVariable String date) {
-        log.info("find In Sgr -> date: {}", date);
-        return availService.findByDistrictJson(DistrictEnum.SGR.getId(), date);
+    String searchAvailabilityInHyd() {
+        log.info("searchAvailabilityInHyd ->");
+        return JsonConverter.toJson(availService.searchAvailByDistrict(DistrictEnum.HYD.getId(), Filters.filters.get(0)));
     }
 
-    @GetMapping(value = "/mdl/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/hyd/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String findByMdc(@PathVariable String date) {
-        log.info("find In Mdc -> date: {}", date);
-        return availService.findByDistrictJson(DistrictEnum.MDL.getId(), date);
+    String searchAvailabilityInHyd(@PathVariable int filter) {
+        log.info("searchAvailabilityInHyd -> filter: {}", filter);
+        Predicate<Center> predicate = Filters.filters.get(filter);
+        if (ObjectUtils.isEmpty(filter) || ObjectUtils.isEmpty(predicate)) {
+            predicate = Filters.filters.get(0);
+        }
+        return JsonConverter.toJson(availService.searchAvailByState(DistrictEnum.HYD.getId(), predicate));
     }
 
-    @GetMapping(value = "/ghmc/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/sgr", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String findInGhmc(@PathVariable String date) {
-        log.info("find In Ghmc -> date: {}", date);
-        return availService.findByDistrictsJson(date, DistrictEnum.HYD, DistrictEnum.MDL, DistrictEnum.SGR, DistrictEnum.RND);
+    String searchAvailabilityInSgr() {
+        log.info("searchAvailabilityInSgr ->");
+        return JsonConverter.toJson(availService.searchAvailByDistrict(DistrictEnum.SGR.getId(), Filters.filters.get(0)));
     }
 
-    @GetMapping(value = "/ghmc/filter/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/hyd/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String findInGhmcAndFilter(@PathVariable String date) {
-        log.info("find In Ghmc And Filter-> date: {}", date);
-        return availService.findByDistrictsAndFilterJson(date, DistrictEnum.HYD, DistrictEnum.MDL, DistrictEnum.SGR, DistrictEnum.RND);
+    String searchAvailabilityInSgr(@PathVariable int filter) {
+        log.info("searchAvailabilityInSgr -> filter: {}", filter);
+        Predicate<Center> predicate = Filters.filters.get(filter);
+        if (ObjectUtils.isEmpty(filter) || ObjectUtils.isEmpty(predicate)) {
+            predicate = Filters.filters.get(0);
+        }
+        return JsonConverter.toJson(availService.searchAvailByState(DistrictEnum.SGR.getId(), predicate));
     }
 
-
-    @GetMapping(value = "/krl/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/rnr", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String findInKrl(@PathVariable String date) {
-        log.info("find In Krl -> date: {}", date);
-        return availService.findByDistrictJson(DistrictEnum.KRL.getId(), date);
+    String searchAvailabilityInRnr() {
+        log.info("searchAvailabilityInRnr ->");
+        return JsonConverter.toJson(availService.searchAvailByDistrict(DistrictEnum.RND.getId(), Filters.filters.get(0)));
     }
 
-    @GetMapping(value = "/wgd/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/rnr/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String findByWgd(@PathVariable String date) {
-        log.info("find In wgd -> date: {}", date);
-        return availService.findByDistrictJson(DistrictEnum.WGD.getId(), date);
+    String searchAvailabilityInRnr(@PathVariable int filter) {
+        log.info("searchAvailabilityInRnr -> filter: {}", filter);
+        Predicate<Center> predicate = Filters.filters.get(filter);
+        if (ObjectUtils.isEmpty(filter) || ObjectUtils.isEmpty(predicate)) {
+            predicate = Filters.filters.get(0);
+        }
+        return JsonConverter.toJson(availService.searchAvailByState(DistrictEnum.RND.getId(), predicate));
     }
 
-    @GetMapping(value = "/vsp/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/mdl", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String findByVsp(@PathVariable String date) {
-        log.info("find In Vsp -> date: {}", date);
-        return availService.findByDistrictJson(DistrictEnum.VSP.getId(), date);
+    String searchAvailabilityInMdl() {
+        log.info("searchAvailabilityInMdl ->");
+        return JsonConverter.toJson(availService.searchAvailByDistrict(DistrictEnum.MDL.getId(), Filters.filters.get(0)));
+    }
+
+    @GetMapping(value = "/mdl/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    String searchAvailabilityInMdl(@PathVariable int filter) {
+        log.info("searchAvailabilityInMdl -> filter: {}", filter);
+        Predicate<Center> predicate = Filters.filters.get(filter);
+        if (ObjectUtils.isEmpty(filter) || ObjectUtils.isEmpty(predicate)) {
+            predicate = Filters.filters.get(0);
+        }
+        return JsonConverter.toJson(availService.searchAvailByState(DistrictEnum.MDL.getId(), predicate));
+    }
+
+    @GetMapping(value = "/krl", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    String searchAvailabilityInKrl() {
+        log.info("searchAvailabilityInKrl ->");
+        return JsonConverter.toJson(availService.searchAvailByDistrict(DistrictEnum.KRL.getId(), Filters.filters.get(0)));
+    }
+
+    @GetMapping(value = "/hyd/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    String searchAvailabilityInKrl(@PathVariable int filter) {
+        log.info("searchAvailabilityInKrl -> filter: {}", filter);
+        Predicate<Center> predicate = Filters.filters.get(filter);
+        if (ObjectUtils.isEmpty(filter) || ObjectUtils.isEmpty(predicate)) {
+            predicate = Filters.filters.get(0);
+        }
+        return JsonConverter.toJson(availService.searchAvailByState(DistrictEnum.KRL.getId(), predicate));
+    }
+
+    @GetMapping(value = "/wgd", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    String searchAvailabilityInWgd() {
+        log.info("searchAvailabilityInWgd ->");
+        return JsonConverter.toJson(availService.searchAvailByDistrict(DistrictEnum.WGD.getId(), Filters.filters.get(0)));
+    }
+
+    @GetMapping(value = "/wgd/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    String searchAvailabilityInWgd(@PathVariable int filter) {
+        log.info("searchAvailabilityInWgd -> filter: {}", filter);
+        Predicate<Center> predicate = Filters.filters.get(filter);
+        if (ObjectUtils.isEmpty(filter) || ObjectUtils.isEmpty(predicate)) {
+            predicate = Filters.filters.get(0);
+        }
+        return JsonConverter.toJson(availService.searchAvailByState(DistrictEnum.WGD.getId(), predicate));
+    }
+
+    @GetMapping(value = "/vsp", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    String searchAvailabilityInVsp() {
+        log.info("searchAvailabilityInVsp ->");
+        return JsonConverter.toJson(availService.searchAvailByDistrict(DistrictEnum.VSP.getId(), Filters.filters.get(0)));
+    }
+
+    @GetMapping(value = "/vsp/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    String searchAvailabilityInVsp(@PathVariable int filter) {
+        log.info("searchAvailabilityInVsp -> filter: {}", filter);
+        Predicate<Center> predicate = Filters.filters.get(filter);
+        if (ObjectUtils.isEmpty(filter) || ObjectUtils.isEmpty(predicate)) {
+            predicate = Filters.filters.get(0);
+        }
+        return JsonConverter.toJson(availService.searchAvailByState(DistrictEnum.VSP.getId(), predicate));
+    }
+
+    @GetMapping(value = "/ghmc", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    String searchAvailabilityInGhmc() {
+        log.info("searchAvailabilityInGhmc ->");
+
+        return JsonConverter.toJson(availService.searchAvailByDistricts(Filters.filters.get(0), List.of(DistrictEnum.HYD.getId(), DistrictEnum.SGR.getId(), DistrictEnum.RND.getId(), DistrictEnum.MDL.getId())));
+    }
+
+    @GetMapping(value = "/hyd/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    String searchAvailabilityInGhmc(@PathVariable int filter) {
+        log.info("searchAvailabilityInGhmc -> filter: {}", filter);
+        Predicate<Center> predicate = Filters.filters.get(filter);
+        if (ObjectUtils.isEmpty(filter) || ObjectUtils.isEmpty(predicate)) {
+            predicate = Filters.filters.get(0);
+        }
+        return JsonConverter.toJson(availService.searchAvailByState(DistrictEnum.HYD.getId(), predicate));
     }
 }

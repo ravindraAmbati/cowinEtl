@@ -5,6 +5,7 @@ public class AppConstants {
     public static final String METADATA_STATES_URL = "https://cdn-api.co-vin.in/api/v2/admin/location/states";
     public static final String METADATA_DISTRICTS_URL = "https://cdn-api.co-vin.in/api/v2/admin/location/districts/{state_id}";
     public static final String FIND_BY_DISTRICT_ID_AND_DATE = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id={district_id}&date={date}";
+    public static final String CALENDAR_BY_DISTRICT_ID_AND_DATE = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id={district_id}&date={date}";
 
     public static final String STATE_ID = "state_id";
     public static final String DISTRICT_ID = "district_id";
