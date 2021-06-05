@@ -19,9 +19,9 @@ public class MetaCache {
     public static HashMap<Integer, String> districtMap = new HashMap<>();
 
     @Autowired
-    private static MetaService metaService;
+    private MetaService metaService;
 
-    static {
+    public void load(){
         log.info("starting caching of metadata");
         metaService.getStates().forEach(
                 state -> {

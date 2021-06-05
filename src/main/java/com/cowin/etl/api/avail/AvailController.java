@@ -126,7 +126,7 @@ public class AvailController {
         return JsonConverter.toJson(availService.searchAvailByDistrict(DistrictEnum.SGR.getId(), Filters.filters.get(0)));
     }
 
-    @GetMapping(value = "/hyd/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/sgr/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     String searchAvailabilityInSgr(@PathVariable int filter) {
         log.info("searchAvailabilityInSgr -> filter: {}", filter);
@@ -180,7 +180,7 @@ public class AvailController {
         return JsonConverter.toJson(availService.searchAvailByDistrict(DistrictEnum.KRL.getId(), Filters.filters.get(0)));
     }
 
-    @GetMapping(value = "/hyd/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/krl/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     String searchAvailabilityInKrl(@PathVariable int filter) {
         log.info("searchAvailabilityInKrl -> filter: {}", filter);
@@ -235,7 +235,7 @@ public class AvailController {
         return JsonConverter.toJson(availService.searchAvailByDistricts(Filters.filters.get(0), List.of(DistrictEnum.HYD.getId(), DistrictEnum.SGR.getId(), DistrictEnum.RND.getId(), DistrictEnum.MDL.getId())));
     }
 
-    @GetMapping(value = "/hyd/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/ghmc/filter/{filter}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     String searchAvailabilityInGhmc(@PathVariable int filter) {
         log.info("searchAvailabilityInGhmc -> filter: {}", filter);

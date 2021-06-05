@@ -16,7 +16,7 @@ import java.time.LocalDate;
 public class Sessions {
 
     private String session_id;
-    private LocalDate date;
+    private String date;
     private int available_capacity;
     private int min_age_limit;
     private String vaccine;

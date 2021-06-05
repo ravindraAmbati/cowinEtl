@@ -25,8 +25,8 @@ public class Center {
     private long pincode;
     private float lat;
     private float Long;
-    private LocalTime from;
-    private LocalTime to;
+    private String from;
+    private String to;
     private String fee_type;
     private Sessions[] sessions;
     private Vaccine_Fees[] vaccine_fees;
